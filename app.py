@@ -3,11 +3,8 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import altair as alt
-import matplotlib.pyplot as plt
 
 from collections import Counter
-from datetime import date, timedelta
-from wordcloud import WordCloud
 
 from src.utils import parse_date, display_article, patch_dataframe_date
 from src.news_collector import NewsCollector
