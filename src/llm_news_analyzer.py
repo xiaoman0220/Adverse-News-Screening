@@ -135,4 +135,4 @@ class LLMNewsAnalyzer:
         try:
             self.classification_result = json.loads(response.choices[0].message.content)
         except Exception as e:
-            print(f"error fetching classification result: {e}")
+            print(f"error fetching classification result: {e}", response.choices[0].message.content)
