@@ -28,7 +28,7 @@ class LLMNewsAnalyzer:
                     "role": "system",
                     "content":
                     """
-                    You are an expert in extracting named entities from financial news. I will be providing a set of entities and some news articles containing [title] and [snippet], and you will need to extract the entities from the articles. Multiple news articles will be seperated by a newline character.
+                    You are an expert in extracting named entities from financial news. I will be providing a set of entities and some news articles containing [title] and [snippet], and you will need to extract the entities from the articles. Multiple news articles will be separated by a newline character.
                     
                     ## Constraints
                     1. References to the same entity should be grouped together while all variations should be listed.
@@ -105,7 +105,7 @@ class LLMNewsAnalyzer:
                     "role": "system",
                     "content":
                     f"""
-                    You are an expert in dentifying adverse financial news and classifying them. I will be providing a set of adverse news categories and some news articles containing [title] and [snippet], and you will need to classify the articles into the categories.
+                    You are an expert in identifying adverse financial news and classifying them. I will be providing a set of adverse news categories and some news articles containing [title] and [snippet], and you will need to classify the articles into the categories.
 
                     ## Constraints
                     1. Return a parsable JSON object with the following fields: category, confidence_score (the score should show how confidence you are that the document belong to the category), justification(justify the category and score).
