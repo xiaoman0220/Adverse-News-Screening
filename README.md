@@ -75,7 +75,7 @@ Adverse-News-Screening
 ## 🧪 Setup & Run
 
 ### 1. Prerequisites
-
+- ✔️ python 3.9
 - [✔️ SerperAPI key](https://serper.dev/)
 - [✔️ Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal)
 
