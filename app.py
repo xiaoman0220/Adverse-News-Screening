@@ -1,16 +1,14 @@
-import json
 import streamlit as st
 import pandas as pd
-import numpy as np
 import plotly.express as px
 from collections import Counter
-from src.utils import parse_date, display_article, patch_dataframe_date
+from src.utils import parse_date, patch_dataframe_date
 from src.news_collector import NewsCollector
 from src.llm_news_analyzer import LLMNewsAnalyzer
 from src.adverse_relevance_scorer import AdverseRelevanceScorer
 
 # --------------------------
-# 配置与样式设置
+# Page Configurations
 # --------------------------
 st.set_page_config(
     page_title="Targeted Adverse News Screening",
@@ -29,55 +27,21 @@ st.markdown("""
     .card:hover {
         transform: translateY(-2px);
     }
-    .adverse-card {
-        border-left: 5px solid #ff4b4b;
-    }
-    .general-card {
-        border-left: 5px solid #4b77ff;
-    }
     .metric-value {
         font-size: 1.4rem !important;
         font-weight: 700;
-    }
-    /* 定制Expander样式 */
-    .streamlit-expanderHeader:hover {
-        background-color: #f8f9fa !important;
-    }
-
-    .streamlit-expanderContent {
-        padding: 15px !important;
-        background: #fafafa;
-        border-radius: 0 0 8px 8px;
-    }
-
-    /* 卡片内按钮悬停效果 */
-    button:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
-    }
-
-    /* 实体标签样式 */
-    code {
-        transition: all 0.2s;
-        display: inline-block;
-        margin: 2px;
-    }
-
-    code:hover {
-        background: #00000010 !important;
-        transform: scale(1.05);
     }
     </style>
 """, unsafe_allow_html=True)
 
 # --------------------------
-# 侧边栏组件
+# Side bar
 # --------------------------
 with st.sidebar:
     st.title("🎯 Targeted Adverse News Screening")
     st.markdown("---")
     
-    # 搜索条件输入
+    # Enter search query
     st.subheader("🔍 Search Criteria")
     query = st.text_input(
         "Entity Name", 
@@ -106,49 +70,48 @@ with st.sidebar:
             st.session_state.search_time_range = time_range
             st.session_state.search_return_num = return_num
             st.session_state.query_data = None
-            # st.rerun()
         
 
 # --------------------------
-# 数据获取与处理
+# Fetch and process news data
 # --------------------------
 @st.cache_data(ttl=3600, show_spinner=False)
 def fetch_news_data(_collector, query, return_num, time_range):
-    """获取新闻数据"""
+    """fetch news data"""
     _collector.search(query=query, return_num=return_num, time_range=time_range)
     return _collector.result
 
 def process_news_data(articles):
-    """处理新闻数据"""
+    """process news data"""
     analyzer = LLMNewsAnalyzer()
     processed_data = []
     
-    # 批量处理数据
+    # batch processing
     batch_size = 10
     for i in range(0, len(articles), batch_size):
         batch = articles[i:i+batch_size]
         
-        # 准备批处理文本
+        # prepare batch articles
         batch_texts = [
             f"[title]{art['title']} [snippet]{art.get('snippet', '')}"
             for art in batch
         ]
         
-        # 分类处理
+        # classification
         analyzer.classify_news("\n".join(batch_texts))
         classification = analyzer.classification_result
 
-        # 实体识别
+        # ner
         analyzer.extract_entities("\n".join(batch_texts))
         entities = analyzer.ner_result
-        # 组合结果
+
+        # combine results
         for idx, art in enumerate(batch):
-            # Calculate relevance score
+            # calculate relevance score
             scorer = AdverseRelevanceScorer(entities[idx], classification[idx]['confidence_score'])
             scorer.compute_relevant_score()
 
             processed_data.append({
-                # ​**​art,
                 "title": art.get("title"),
                 "snippet": art.get("snippet", ""),
                 "url": art.get("link", "#"),
@@ -164,10 +127,10 @@ def process_news_data(articles):
     return pd.DataFrame(processed_data)
 
 # --------------------------
-# 可视化组件
+# Visualization
 # --------------------------
 def render_metrics(news_data):
-    """显示关键指标"""
+    """render key metrics"""
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric("Total Articles", len(news_data))
@@ -197,13 +160,10 @@ def render_entity_selection():
                 entity_types,
                 ["PERSON", "COMPANY"],
             )
-
-    # entity_type_option = st.selectbox("Select Entity Type", 
-    #                                 options=entity_types)
     return entity_type_option
 
 def render_category_distribution(news_data):
-    """绘制分类分布图"""
+    """Render category distribution"""
     st.subheader("📰 News Category Distribution")
     fig = px.pie(news_data, names='category', 
                 color_discrete_sequence=px.colors.qualitative.Pastel,
@@ -213,6 +173,7 @@ def render_category_distribution(news_data):
 
 
 def render_category_entity_matrix(news_data, entity_type_options):
+    """Render category entity matrix"""
     matrix_records = []
     for _, row in news_data.iterrows():
         category = row["category"]
@@ -240,6 +201,7 @@ def render_category_entity_matrix(news_data, entity_type_options):
         st.write(styled_pivot)
 
 def render_top_mentioned_entities(news_data, entity_type_options):
+    """Render top mentioned entities"""
     entity_counter = Counter()
     for _, row in news_data.iterrows():
         for ent_type in entity_type_options:
@@ -255,7 +217,7 @@ def render_top_mentioned_entities(news_data, entity_type_options):
         st.markdown("_No mention_")
 
 def render_time_trend(news_data):
-    # Time trend visualization
+    """Render time trend"""
     st.subheader(f"📈 News Trend Related to {query}")
     col1, col2 = st.columns(2)
     with col1:
@@ -289,10 +251,51 @@ def render_time_trend(news_data):
             df_full = patch_dataframe_date(entity_trend, "entity")
             fig_timeline = px.line(df_full, x="date", y="count", color="entity", title="Time Series Trend by Entities")
             st.plotly_chart(fig_timeline)
-    
 
 # --------------------------
-# 主界面
+# Display article details
+# --------------------------
+def display_article(row):
+    # Display news articles
+    is_adverse = row['category'] not in ['General Financial News', 'Non Financial News']
+    news_tag = "🔴" if is_adverse else "🔵"
+    # for _, row in df.iterrows():
+    with st.expander(f"{news_tag} {row['title']}"):
+        st.markdown(f"**Published**: {row['date']}")
+        st.markdown(f"**URL**: [Link]({row['url']})")
+        st.markdown(f"**Snippet**: {row['snippet']}")
+        if is_adverse:
+            st.markdown(f"**Predicted Category**: :red-background[{row['category']}]")
+        else:
+            st.markdown(f"**Predicted Category**: :blue-background[{row['category']}]")
+        st.markdown(f"**Justification**: `{row['justification']}`")
+        if is_adverse:
+            st.markdown(f"**📌Adverse Relevance**: :red[{row['adverse_relevance']}]")
+
+        st.markdown("**Entities Extracted:**")
+        entities = row['entities']
+        entities_flag = 0
+        for entity_type, entity_list in entities.items():
+            if not entity_list:
+                continue
+            entities_flag = 1
+            st.markdown(f"**🧠 {entity_type.replace('_', ' ').title()}**")
+            for entity in entity_list:
+                if isinstance(entity, dict):
+                    name = entity.get("entity_name")
+                    variations = entity.get("variations", [])
+                    variation_str = ", ".join([v for v in variations if v.lower() != name.lower()])
+                    if variation_str:
+                        st.markdown(f"- **{name}**  \
+                        _Also referred to as:_ {variation_str}")
+                    else:
+                        st.markdown(f"- **{name}** \
+                                    _No other reference found_")
+        if not entities_flag:
+            st.markdown("_No entities found_")
+
+# --------------------------
+# Main page
 # --------------------------
 def main():
     
@@ -312,9 +315,8 @@ def main():
             collector = NewsCollector()
             raw_data = fetch_news_data(collector, 
                                      st.session_state.current_query,
-                                     st.session_state.search_return_num,  # 示例参数
+                                     st.session_state.search_return_num, 
                                      st.session_state.search_time_range)
-            # st.write(raw_data)
             if not raw_data or "news" not in raw_data:
                 st.error("No relevant news found")
                 return
@@ -327,7 +329,7 @@ def main():
     if st.session_state.query_data is not None:
         
         news_df = st.session_state.query_data
-        # 主界面布局
+        # Main page layout
         tab1, tab2 = st.tabs(["Analysis Dashboard", "Article Details"])
         
         with tab1:
@@ -347,7 +349,7 @@ def main():
                 render_category_entity_matrix(news_df, entity_type_options)
                 
         with tab2:
-            # """集成可展开详细信息的文章卡片"""
+            # News article result layout
             st.subheader("📑 Article Review Panel")
             news_df = news_df.sort_values(by="date", ascending=False)
             csv_data = news_df.drop(columns=["entities", "justification", "score"]).to_csv(index=False).encode("utf-8")
@@ -359,7 +361,7 @@ def main():
                 key="download_csv"
                 )
             
-            # 分页功能
+            # Pagination
             page_size = 10
             page_number = st.number_input('Page', min_value=1, 
                                         max_value=len(news_df)//page_size+1,
