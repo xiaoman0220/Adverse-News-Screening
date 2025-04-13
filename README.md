@@ -2,8 +2,6 @@
 
 A Streamlit-based web application for entity-focused monitoring of adverse financial news using Azure OpenAI and SerperAPI.
 
----
-
 ## 🚀 Features
 
 - **🔍 Targeted News Search**  
@@ -44,16 +42,12 @@ A Streamlit-based web application for entity-focused monitoring of adverse finan
   - Drill down by entity
   - Export results as CSV
 
----
-
 ## ⚙️ Architecture
 
 - **Frontend**: [Streamlit](https://streamlit.io/)
 - **Backend**:
   - [SerperAPI](https://serper.dev/) for news search
   - [Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/ai-services/openai/) for classification and NER
-
----
 
 ## 📁 Repository Structure
 
@@ -77,7 +71,6 @@ Adverse-News-Screening
     └── test_news_collector.py
 ```
 
----
 
 ## 🧪 Setup & Run
 
@@ -86,7 +79,6 @@ Adverse-News-Screening
 - [✔️ SerperAPI key](https://serper.dev/)
 - [✔️ Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal)
 
----
 
 ### 2. Clone the repository
 
@@ -95,7 +87,6 @@ git clone https://github.com/xiaoman0220/Adverse-News-Screening.git
 cd Adverse-News-Screening
 ```
 
----
 
 ### 3. Install dependencies
 
@@ -103,7 +94,6 @@ cd Adverse-News-Screening
 pip install -r requirements.txt
 ```
 
----
 
 ### 4. Run unit tests
 
@@ -113,7 +103,6 @@ python -m unittest
 cd ..
 ```
 
----
 
 ### 5. Set environment variables
 
@@ -125,7 +114,6 @@ export OPENAI_SUBSCRIPTION_KEY=<your-openai-key>
 export OPENAI_VERSION=<your-model-version>
 ```
 
----
 
 ### 6. Launch the app
 
@@ -133,13 +121,11 @@ export OPENAI_VERSION=<your-model-version>
 streamlit run app.py
 ```
 
----
 
 ## 🌐 Deployment
 The app is deployed on [Streamlit Cloud](https://xiaoman0220-adverse-news-screening-app-pi60gp.streamlit.app/)  
 **Access is restricted to authorized users.**
 
----
 
 ## 📄 License
 
