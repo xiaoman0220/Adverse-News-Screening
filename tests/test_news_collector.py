@@ -9,7 +9,7 @@ class TestNewsCollector(unittest.TestCase):
     def test_search(self):
         collector = NewsCollector()
         collector.search('Sam Bankman-Fried')
-        self.assertIsInstance(collector.result, list, 'The search result is wrong.')
+        self.assertIsInstance(collector.result, dict, 'The search result is wrong.')
 
 if __name__ == '__main__':
     unittest.main()
