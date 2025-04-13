@@ -56,15 +56,15 @@ class LLMNewsAnalyzer:
                             },
                             ...
                         ],
-                        "FINANCIAL_INSTITUTION": [...],
-                        "REGULATORY_BODY": [...],
-                        "PROTENTIAL_CRIME": [...],
-                        "LEGAL_ACTION": [...],
-                        "ENFORCEMENT_ACTION": [...],
-                        "LOCATION": [...],
-                        "SANCTION_ENTITY": [...],
-                        "SECTOR": [...],
-                        "REGULATION": [...]
+                        "FINANCIAL_INSTITUTION": [{...}],
+                        "REGULATORY_BODY": [{...}],
+                        "PROTENTIAL_CRIME": [{...}],
+                        "LEGAL_ACTION": [{...}],
+                        "ENFORCEMENT_ACTION": [{...}],
+                        "LOCATION": [{...}],
+                        "SANCTION_ENTITY": [{...}],
+                        "SECTOR": [{...}],
+                        "REGULATION": [{...}]
                         }
                     
                     ## Entities

@@ -14,8 +14,6 @@ class NewsCollector:
         self.api_key = api_key if api_key else os.environ['NEWS_SEARCH_KEY']
         self.__time_range_map = {
             "Past month": "m",
-            "Past hour": "h",
-            "Past 24 hours": "d",
             "Past week": "w",
             "Past year": "y"
         }

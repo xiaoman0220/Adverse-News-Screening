@@ -51,7 +51,7 @@ with st.sidebar:
     
     time_range = st.selectbox(
         "Date Range",
-        options=["Past hour", "Past 24 hours", "Past week", 
+        options=["Past week", 
                 "Past month", "Past year", "Any time"],
         index=3,
         help="Select the time range for news collection"
@@ -64,7 +64,9 @@ with st.sidebar:
     )
     
     if st.button("🚀 Start Analysis", use_container_width=True):
-        if query != st.session_state.current_query:
+        if query != st.session_state.current_query or \
+            time_range != st.session_state.search_time_range or \
+            return_num != st.session_state.search_return_num:
             st.session_state.analysis_triggered = True
             st.session_state.current_query = query
             st.session_state.search_time_range = time_range
@@ -310,7 +312,10 @@ def main():
     if "query_data" not in st.session_state:
         st.session_state.query_data = None
     
-    if st.session_state.analysis_triggered and (st.session_state.current_query != query or st.session_state.query_data is None):
+    if st.session_state.analysis_triggered and (st.session_state.current_query != query or \
+                                                st.session_state.search_time_range != time_range or \
+                                                st.session_state.search_return_num != return_num or \
+                                                st.session_state.query_data is None):
         with st.spinner("🔍 Collecting and analyzing news articles..."):
             collector = NewsCollector()
             raw_data = fetch_news_data(collector, 
@@ -325,6 +330,8 @@ def main():
             news_df = process_news_data(raw_data["news"])
             news_df['date'] = pd.to_datetime(news_df['date'], errors="coerce")
             st.session_state.query_data = news_df
+
+        st.session_state.analysis_triggered = False
 
     if st.session_state.query_data is not None:
         
