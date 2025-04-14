@@ -1,7 +1,7 @@
 # 🎯 Targeted Adverse News Screening
 
 A Streamlit-based web application for entity-focused monitoring of adverse financial news using Azure OpenAI and SerperAPI.
-![Demo](assets/demo.gif)
+![Demo](assets/streamlit-app.gif)
 ## 🚀 Features
 
 - **🔍 Targeted News Search**  
