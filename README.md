@@ -2,7 +2,7 @@
 
 A Streamlit-based web application for entity-focused monitoring of adverse financial news using Azure OpenAI and SerperAPI.
 ![demo](https://i.imgur.com/yVczjNI.gif)
-
+![Demo](assets/demo.gif)
 ## 🚀 Features
 
 - **🔍 Targeted News Search**  
