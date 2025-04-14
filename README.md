@@ -1,6 +1,7 @@
 # 🎯 Targeted Adverse News Screening
 
 A Streamlit-based web application for entity-focused monitoring of adverse financial news using Azure OpenAI and SerperAPI.
+![demo](https://i.imgur.com/yVczjNI.gif)
 
 ## 🚀 Features
 
@@ -52,23 +53,28 @@ A Streamlit-based web application for entity-focused monitoring of adverse finan
 ## 📁 Repository Structure
 
 ```
-Adverse-News-Screening
-├── .gitignore
-├── LICENSE
-├── README.md
-├── app.py                      # Streamlit frontend
-├── requirements.txt
-├── src/
-│   ├── __init__.py
-│   ├── adverse_relevance_scorer.py     # Rule-based relevance scoring
-│   ├── llm_news_analyzer.py            # Azure OpenAI NER + classification
-│   ├── news_collector.py               # SerperAPI-based news search
-│   └── utils.py
-└── tests/
-    ├── __init__.py
-    ├── test_adverse_relevance_scorer.py
-    ├── test_news_analyzer.py
-    └── test_news_collector.py
+📦 Adverse-News-Screening         
+├─ .gitignore                     
+├─ LICENSE                        
+├─ README.md                      
+├─ app.py                         # Streamlit app entry point
+├─ experiments                    # Jupyter notebooks for exploratory work and testing
+│  ├─ EDA.ipynb                   
+│  ├─ NER_test.ipynb              
+│  └─ classification_test.ipynb  
+├─ requirements.txt               
+├─ src                            
+│  ├─ __init__.py                 
+│  ├─ adverse_relevance_scorer.py # Scoring news based on adverse relevance
+│  ├─ llm_news_analyzer.py        # Analyzing news using LLMs (e.g., classification, NER)
+│  ├─ news_collector.py           # Fetches news articles
+│  └─ utils.py                    # Utility functions used across modules
+└─ tests                          # Unit tests for the source code
+   ├─ __init__.py                 
+   ├─ test_adverse_relevance_scorer.py 
+   ├─ test_news_analyzer.py       
+   └─ test_news_collector.py      
+
 ```
 
 
