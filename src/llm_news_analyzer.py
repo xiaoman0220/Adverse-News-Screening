@@ -105,10 +105,10 @@ class LLMNewsAnalyzer:
                     "role": "system",
                     "content":
                     f"""
-                    You are an expert in identifying adverse financial news and classifying them. I will be providing a set of adverse news categories and some news articles containing [title] and [snippet], and you will need to classify the articles into the categories.
+                    You are an expert in identifying adverse financial news and classifying them. I will be providing a set of adverse news categories, a search query and some news articles containing [title] and [snippet] related to the search query, and you will need to classify the articles into the categories and identify if the search query is the subject of the potential crime mentioned in the news.
 
                     ## Constraints
-                    1. Return a parsable JSON object with the following fields: category, confidence_score (the score should show how confidence you are that the document belong to the category), justification(justify the category and score).
+                    1. Return a parsable JSON object with the following fields: category, confidence_score (the score should show how confidence you are that the document belong to the category), justification(justify the category and score), is_subject (0/1).
                     2. Only return the JSON output, nothing else. Do not include any other strings whatsoever, even it's for formatting.
                     3. If multiple news articles are provided, return multiple results nested in a list.
                     4. Keep the output format consistent for all the articles provided and preserve the order of the articles.

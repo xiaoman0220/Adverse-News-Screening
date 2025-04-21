@@ -27,7 +27,7 @@ class AdverseRelevanceScorer:
         score = 0.0
         for ent_type, entities in self.entity_dict.items():
             if isinstance(entities, list):
-                score += entity_type_weights[ent_type] * len(entities)
+                score += entity_type_weights.get(ent_type, 0) * len(entities)
                     
         self.entity_type_score = min(round(score /len(self.entity_dict), 2), 1.0)  # cap to 1.0
         

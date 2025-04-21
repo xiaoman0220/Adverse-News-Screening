@@ -35,6 +35,20 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --------------------------
+# Initialise session state attributes
+# --------------------------
+if 'analysis_triggered' not in st.session_state:
+    st.session_state.analysis_triggered = False
+if "current_query" not in st.session_state:
+    st.session_state.current_query = None
+if "search_time_range" not in st.session_state:
+    st.session_state.search_time_range = ""
+if "search_return_num" not in st.session_state:
+    st.session_state.search_return_num = 0
+if "query_data" not in st.session_state:
+    st.session_state.query_data = None
+
+# --------------------------
 # Side bar
 # --------------------------
 with st.sidebar:
@@ -100,7 +114,7 @@ def process_news_data(articles):
         ]
         
         # classification
-        analyzer.classify_news("\n".join(batch_texts))
+        analyzer.classify_news("\n[query]" + query + "\n" + "\n".join(batch_texts))
         classification = analyzer.classification_result
 
         # ner
@@ -109,6 +123,7 @@ def process_news_data(articles):
 
         # combine results
         for idx, art in enumerate(batch):
+    
             # calculate relevance score
             scorer = AdverseRelevanceScorer(entities[idx], classification[idx]['confidence_score'])
             scorer.compute_relevant_score()
@@ -123,7 +138,8 @@ def process_news_data(articles):
                 "score": classification[idx]['confidence_score'],
                 "justification": classification[idx]['justification'],
                 "entities": entities[idx],
-                "adverse_relevance": scorer.relevance_score
+                "adverse_relevance": scorer.relevance_score,
+                "is_subject": classification[idx]['is_subject']
             })
     
     return pd.DataFrame(processed_data)
@@ -137,8 +153,9 @@ def render_metrics(news_data):
     with col1:
         st.metric("Total Articles", len(news_data))
     with col2:
-        adverse_count = len(news_data[~news_data['category'].isin(['Non Financial News', 'General Financial News'])])
-        st.metric("Adverse Findings", adverse_count, delta_color="off")
+        adverse_count = len(news_data[(~news_data['category'].isin(['Non Financial News', 'General Financial News']))&
+                                      (news_data['is_subject'])])
+        st.metric(":red[Adverse Findings]", adverse_count, delta_color="off")
     with col3:
         latest_date = news_data['date'].max().strftime("%Y-%m-%d")
         st.metric("Latest Update", latest_date)
@@ -164,10 +181,12 @@ def render_entity_selection():
             )
     return entity_type_option
 
+
 def render_category_distribution(news_data):
     """Render category distribution"""
     st.subheader("📰 News Category Distribution")
-    fig = px.pie(news_data, names='category', 
+    news_data['cateogry_is_subject'] = news_data.apply(lambda x: "Subject of " + x['category'] if x['is_subject'] else "In context of " + x["category"], axis=1)
+    fig = px.pie(news_data, names="cateogry_is_subject", 
                 color_discrete_sequence=px.colors.qualitative.Pastel,
                 hole=0.4)
     fig.update_traces(textposition='inside', textinfo='percent+label')
@@ -260,19 +279,24 @@ def render_time_trend(news_data):
 def display_article(row):
     # Display news articles
     is_adverse = row['category'] not in ['General Financial News', 'Non Financial News']
-    news_tag = "🔴" if is_adverse else "🔵"
+    is_subject = row['is_subject']
+    news_tag = "🔴" if is_adverse and is_subject else "🔵"
+    color = "red" if is_adverse and is_subject else "blue"
+    category = row['category'] if is_adverse and is_subject else "Others"
+    position = "Subject" if is_subject else "Context"
     # for _, row in df.iterrows():
     with st.expander(f"{news_tag} {row['title']}"):
         st.markdown(f"**Published**: {row['date']}")
         st.markdown(f"**URL**: [Link]({row['url']})")
         st.markdown(f"**Snippet**: {row['snippet']}")
-        if is_adverse:
-            st.markdown(f"**Predicted Category**: :red-background[{row['category']}]")
-        else:
-            st.markdown(f"**Predicted Category**: :blue-background[{row['category']}]")
+        st.markdown(f"**Predicted Category**: :{color}-background[{category}]")
         st.markdown(f"**Justification**: `{row['justification']}`")
         if is_adverse:
-            st.markdown(f"**📌Adverse Relevance**: :red[{row['adverse_relevance']}]")
+            st.markdown(f"**Adverse Relevance**: :red[{row['adverse_relevance']}]")
+
+        st.markdown(f"**Query Position**: :{color}[{position}]")
+
+            
 
         st.markdown("**Entities Extracted:**")
         entities = row['entities']
@@ -301,21 +325,10 @@ def display_article(row):
 # --------------------------
 def main():
     
-    if 'analysis_triggered' not in st.session_state:
-        st.session_state.analysis_triggered = False
-    if "current_query" not in st.session_state:
-        st.session_state.current_query = None
-    if "search_time_range" not in st.session_state:
-        st.session_state.search_time_range = ""
-    if "search_return_num" not in st.session_state:
-        st.session_state.search_return_num = 0
-    if "query_data" not in st.session_state:
-        st.session_state.query_data = None
-    
     if st.session_state.analysis_triggered and (st.session_state.current_query != query or \
                                                 st.session_state.search_time_range != time_range or \
                                                 st.session_state.search_return_num != return_num or \
-                                                st.session_state.query_data is None):
+                                                st.session_state.query_data is None):   
         with st.spinner("🔍 Collecting and analyzing news articles..."):
             collector = NewsCollector()
             raw_data = fetch_news_data(collector, 
